@@ -41,6 +41,11 @@ describe("ETHDaddy", () => {
       const result = await contract.maxSupply();
       expect(result).to.equal(1);
     });
+
+    it("returns the total supply", async () => {
+      const result = await contract.totalSupply();
+      expect(result).to.equal(0);
+    });
   });
 
   describe("Domain", () => {
@@ -74,6 +79,34 @@ describe("ETHDaddy", () => {
     it("updates the contract balance", async () => {
       const result = await contract.getBalance();
       expect(result).to.equal(AMOUNT);
+    });
+  });
+
+  describe("Withdrawing", () => {
+    const ID = 1;
+    const AMOUNT = ethers.utils.parseUnits("10", "ether");
+    let balanceBefore;
+
+    beforeEach(async () => {
+      balanceBefore = await ethers.provider.getBalance(deployer.address);
+
+      let transaction = await contract
+        .connect(owner1)
+        .mint(ID, { value: AMOUNT });
+      await transaction.wait();
+
+      transaction = await contract.connect(deployer).withdraw();
+      await transaction.wait();
+    });
+
+    it("updates the owner balance", async () => {
+      const balanceAfter = await ethers.provider.getBalance(deployer.address);
+      expect(balanceAfter).to.greaterThan(balanceBefore);
+    });
+
+    it("updates the contract balance", async () => {
+      const result = await contract.getBalance();
+      expect(result).to.equal(0);
     });
   });
 });
