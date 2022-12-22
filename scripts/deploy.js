@@ -22,6 +22,33 @@ async function main() {
   await contract.deployed();
 
   console.log(`Deployed Domain Contract at: ${contract.address}`);
+
+  // List 6 domains
+  const names = [
+    "jack.eth",
+    "john.eth",
+    "henry.eth",
+    "ruby.eth",
+    "caroline.eth",
+    "suraj.eth",
+  ];
+  const costs = [
+    tokens(10),
+    tokens(25),
+    tokens(15),
+    tokens(2.5),
+    tokens(3),
+    tokens(1),
+  ];
+
+  for (var i = 0; i < 6; i++) {
+    const transaction = await contract
+      .connect(deployer)
+      .list(names[i], costs[i]);
+    await transaction.wait();
+
+    console.log(`Listed Domain ${i + 1}: ${names[i]}`);
+  }
 }
 
 main().catch((error) => {
